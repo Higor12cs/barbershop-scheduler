@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import AppointmentBlock from './AppointmentBlock.vue';
 import { minutesToTime } from '../../Support/date.js';
 
@@ -38,6 +38,15 @@ const gridStyle = computed(() => ({
 }));
 
 const dragging = ref(null);
+const scroller = ref(null);
+
+onMounted(() => {
+    if (props.nowLine.minutes === null) {
+        return;
+    }
+
+    scroller.value?.scrollTo({ top: Math.max(nowLineTop() - HOUR_HEIGHT, 0) });
+});
 
 function isDraggable(appointment) {
     return ['scheduled', 'confirmed'].includes(appointment.status);
@@ -180,7 +189,7 @@ function onBlockPointerCancel() {
 </script>
 
 <template>
-    <div class="max-h-[calc(100vh-13rem)] overflow-auto rounded-xl border border-border">
+    <div ref="scroller" class="max-h-[calc(100vh-13rem)] overflow-auto rounded-xl border border-border">
         <div class="grid min-w-max" :style="gridStyle">
             <div class="sticky left-0 top-0 z-30 border-b border-r border-border bg-surface" />
             <div
