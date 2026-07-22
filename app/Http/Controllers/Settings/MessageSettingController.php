@@ -11,51 +11,65 @@ use Inertia\Response;
 
 class MessageSettingController extends Controller
 {
-    public function show(): Response
+    public const TYPES = ['booking', 'reminder', 'confirmation'];
+
+    /**
+     * Types that are scheduled ahead of the appointment and therefore carry a
+     * "minutes before" setting.
+     */
+    private const SCHEDULED_TYPES = ['reminder', 'confirmation'];
+
+    public function show(string $type): Response
     {
         $settings = NotificationSetting::current();
 
-        return Inertia::render('Settings/Messages/Index', [
+        return Inertia::render('Settings/Messages/Show', [
+            'type' => $type,
             'settings' => [
-                'booking_enabled' => $settings->booking_enabled,
-                'booking_template' => $settings->booking_template,
-                'reminder_enabled' => $settings->reminder_enabled,
-                'reminder_minutes_before' => $settings->reminder_minutes_before,
-                'reminder_template' => $settings->reminder_template,
-                'confirmation_enabled' => $settings->confirmation_enabled,
-                'confirmation_minutes_before' => $settings->confirmation_minutes_before,
-                'confirmation_template' => $settings->confirmation_template,
-                'recurrence_horizon_days' => $settings->recurrence_horizon_days,
+                'enabled' => $settings->{$type.'_enabled'},
+                'template' => $settings->{$type.'_template'},
+                'minutes_before' => $this->isScheduled($type) ? $settings->{$type.'_minutes_before'} : null,
             ],
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, string $type): RedirectResponse
     {
-        $data = $request->validate([
-            'booking_enabled' => ['boolean'],
-            'booking_template' => ['required', 'string', 'max:1000'],
-            'reminder_enabled' => ['boolean'],
-            'reminder_minutes_before' => ['required', 'integer', 'min:1', 'max:10080'],
-            'reminder_template' => ['required', 'string', 'max:1000'],
-            'confirmation_enabled' => ['boolean'],
-            'confirmation_minutes_before' => ['required', 'integer', 'min:1', 'max:10080'],
-            'confirmation_template' => ['required', 'string', 'max:1000'],
-            'recurrence_horizon_days' => ['required', 'integer', 'min:1', 'max:365'],
-        ]);
+        $data = $request->validate($this->rules($type));
 
-        NotificationSetting::current()->update([
-            'booking_enabled' => $data['booking_enabled'] ?? false,
-            'booking_template' => $data['booking_template'],
-            'reminder_enabled' => $data['reminder_enabled'] ?? false,
-            'reminder_minutes_before' => $data['reminder_minutes_before'],
-            'reminder_template' => $data['reminder_template'],
-            'confirmation_enabled' => $data['confirmation_enabled'] ?? false,
-            'confirmation_minutes_before' => $data['confirmation_minutes_before'],
-            'confirmation_template' => $data['confirmation_template'],
-            'recurrence_horizon_days' => $data['recurrence_horizon_days'],
-        ]);
+        $payload = [
+            $type.'_enabled' => $data['enabled'] ?? false,
+            $type.'_template' => $data['template'],
+        ];
 
-        return back()->with('success', 'Configurações salvas com sucesso!');
+        if ($this->isScheduled($type)) {
+            $payload[$type.'_minutes_before'] = $data['minutes_before'];
+        }
+
+        NotificationSetting::current()->update($payload);
+
+        return back()->with('success', 'Mensagem salva com sucesso!');
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function rules(string $type): array
+    {
+        $rules = [
+            'enabled' => ['boolean'],
+            'template' => ['required', 'string', 'max:1000'],
+        ];
+
+        if ($this->isScheduled($type)) {
+            $rules['minutes_before'] = ['required', 'integer', 'min:1', 'max:10080'];
+        }
+
+        return $rules;
+    }
+
+    private function isScheduled(string $type): bool
+    {
+        return in_array($type, self::SCHEDULED_TYPES, true);
     }
 }

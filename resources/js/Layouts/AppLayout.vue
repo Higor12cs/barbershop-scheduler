@@ -89,8 +89,17 @@ const navGroups = [
             {
                 label: "Mensagens",
                 icon: "settings",
-                route: "settings.messages.index",
+                route: "settings.messages.show",
+                params: { type: "booking" },
+                match: "settings.messages.*",
                 permission: "notifications.view",
+            },
+            {
+                label: "Geração de Recorrências",
+                icon: "repeat",
+                route: "settings.recurrence.index",
+                module: "recurrences",
+                permission: "recurrences.view",
             },
             {
                 label: "Usuários",

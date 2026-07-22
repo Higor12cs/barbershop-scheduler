@@ -48,9 +48,9 @@ class Permissions
         'recurrences' => [
             'label' => 'Recorrências',
             'permissions' => [
-                'recurrences.view' => ['label' => 'Visualizar', 'routes' => ['recurrences.index']],
+                'recurrences.view' => ['label' => 'Visualizar', 'routes' => ['recurrences.index', 'settings.recurrence.index']],
                 'recurrences.create' => ['label' => 'Criar', 'routes' => ['recurrences.create', 'recurrences.store']],
-                'recurrences.update' => ['label' => 'Editar', 'routes' => ['recurrences.edit', 'recurrences.update']],
+                'recurrences.update' => ['label' => 'Editar', 'routes' => ['recurrences.edit', 'recurrences.update', 'settings.recurrence.update']],
                 'recurrences.delete' => ['label' => 'Excluir', 'routes' => ['recurrences.destroy']],
             ],
         ],
@@ -89,7 +89,7 @@ class Permissions
         'notifications' => [
             'label' => 'Notificações',
             'permissions' => [
-                'notifications.view' => ['label' => 'Visualizar', 'routes' => ['settings.messages.index']],
+                'notifications.view' => ['label' => 'Visualizar', 'routes' => ['settings.messages.index', 'settings.messages.show']],
                 'notifications.update' => ['label' => 'Editar', 'routes' => ['settings.messages.update']],
             ],
         ],

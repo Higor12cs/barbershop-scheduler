@@ -74,6 +74,7 @@ class Modules
             str_starts_with($name, 'employees.') => self::EMPLOYEES,
             str_starts_with($name, 'products.') => self::PRODUCTS,
             str_starts_with($name, 'recurrences.') => self::RECURRENCES,
+            str_starts_with($name, 'settings.recurrence.') => self::RECURRENCES,
             str_starts_with($name, 'sales.') => self::SALES,
             str_starts_with($name, 'reports.') => self::REPORTS,
             str_starts_with($name, 'settings.whatsapp.') => self::WHATSAPP,

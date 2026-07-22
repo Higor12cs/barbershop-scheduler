@@ -12,6 +12,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Settings\MessageSettingController;
+use App\Http\Controllers\Settings\RecurrenceSettingController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
 use App\Http\Controllers\Settings\WhatsappSettingController;
@@ -62,8 +63,12 @@ Route::middleware([
 
         Route::resource('roles', RoleController::class)->except(['show']);
 
-        Route::get('/messages', [MessageSettingController::class, 'show'])->name('messages.index');
-        Route::put('/messages', [MessageSettingController::class, 'update'])->name('messages.update');
+        Route::redirect('/messages', '/settings/messages/booking')->name('messages.index');
+        Route::get('/messages/{type}', [MessageSettingController::class, 'show'])->name('messages.show')->whereIn('type', MessageSettingController::TYPES);
+        Route::put('/messages/{type}', [MessageSettingController::class, 'update'])->name('messages.update')->whereIn('type', MessageSettingController::TYPES);
+
+        Route::get('/recurrence', [RecurrenceSettingController::class, 'show'])->name('recurrence.index');
+        Route::put('/recurrence', [RecurrenceSettingController::class, 'update'])->name('recurrence.update');
 
         Route::get('/whatsapp', [WhatsappSettingController::class, 'show'])->name('whatsapp.index');
         Route::get('/whatsapp/status', [WhatsappSettingController::class, 'status'])->name('whatsapp.status');

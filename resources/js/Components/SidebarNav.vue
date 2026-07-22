@@ -22,12 +22,16 @@ function loadOpen() {
 
 const openSubmenus = ref(loadOpen());
 
-function isActive(name) {
-    return route().current(name);
+function isActive(item) {
+    return route().current(item.match ?? item.route);
+}
+
+function hrefFor(item) {
+    return route(item.route, item.params ?? {});
 }
 
 function itemHasActiveChild(item) {
-    return (item.children || []).some((child) => isActive(child.route));
+    return (item.children || []).some((child) => isActive(child));
 }
 
 function isSubmenuOpen(item) {
@@ -64,9 +68,9 @@ function toggleSubmenu(item) {
             <template v-for="item in group.items" :key="item.label">
                 <Link
                     v-if="item.route"
-                    :href="route(item.route)"
+                    :href="hrefFor(item)"
                     class="nav-link"
-                    :class="{ 'nav-link-active': isActive(item.route) }"
+                    :class="{ 'nav-link-active': isActive(item) }"
                     @click="emit('navigate')"
                 >
                     <Icon :name="item.icon" class="size-5 shrink-0" />
@@ -98,10 +102,10 @@ function toggleSubmenu(item) {
                         <Link
                             v-for="child in item.children"
                             :key="child.route"
-                            :href="route(child.route)"
+                            :href="hrefFor(child)"
                             class="nav-link"
                             :class="{
-                                'nav-link-active': isActive(child.route),
+                                'nav-link-active': isActive(child),
                             }"
                             @click="emit('navigate')"
                         >
