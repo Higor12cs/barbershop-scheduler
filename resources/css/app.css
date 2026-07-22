@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+@source '../js';
+@source inline('bg-{zinc-500,sky-600,sky-600,amber-600,rose-600,violet-600,teal-600}');
+
+@theme {
+    --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    --color-primary: var(--color-sky-900);
+    --color-primary-foreground: #ffffff;
+    --color-secondary: var(--color-stone-600);
+    --color-success: var(--color-sky-600);
+    --color-warning: var(--color-amber-600);
+    --color-danger: var(--color-red-600);
+    --color-info: var(--color-sky-600);
+
+    --color-muted: var(--color-stone-400);
+
+    --color-chart-1: var(--color-primary);
+    --color-chart-2: var(--color-amber-600);
+    --color-chart-3: var(--color-stone-400);
+    --color-chart-4: var(--color-rose-400);
+    --color-chart-5: var(--color-sky-600);
+
+    --color-surface: #ffffff;
+    --color-surface-alt: var(--color-stone-50);
+    --color-surface-muted: var(--color-stone-100);
+    --color-border: var(--color-stone-200);
+    --color-foreground: var(--color-stone-950);
+}
+
+@layer base {
+    body {
+        @apply bg-surface-alt text-foreground;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+        font: inherit;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply border-primary bg-primary text-primary-foreground hover:brightness-125;
+    }
+
+    .btn-secondary {
+        @apply border-border bg-surface text-foreground hover:bg-surface-muted;
+    }
+
+    .btn-danger {
+        @apply border-danger bg-danger text-white hover:brightness-110;
+    }
+
+    .btn-block {
+        @apply w-full;
+    }
+
+    .card {
+        @apply rounded-2xl border border-border bg-surface;
+    }
+
+    .card-header {
+        @apply border-b border-border px-5 py-4;
+    }
+
+    .card-body {
+        @apply p-5;
+    }
+
+    .card-title {
+        @apply text-base font-semibold;
+    }
+
+    .form-group {
+        @apply flex flex-col gap-1.5;
+    }
+
+    .form-label {
+        @apply text-sm font-medium text-foreground;
+    }
+
+    .form-control {
+        @apply h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-primary/50;
+    }
+
+    .form-control-textarea {
+        @apply h-auto min-h-24 py-2;
+    }
+
+    .form-checkbox {
+        @apply size-4 rounded border-border text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    }
+
+    .form-error {
+        @apply text-sm text-danger;
+    }
+
+    .alert {
+        @apply rounded-lg border px-4 py-3 text-sm;
+    }
+
+    .alert-success {
+        @apply border-success/30 bg-success/10 text-success;
+    }
+
+    .alert-danger {
+        @apply border-danger/30 bg-danger/10 text-danger;
+    }
+
+    .alert-warning {
+        @apply border-warning/40 bg-warning/10 text-warning;
+    }
+
+    .alert-info {
+        @apply border-info/30 bg-info/10 text-info;
+    }
+
+    .badge {
+        @apply inline-flex items-center rounded-lg bg-surface-muted px-2 py-1 text-xs font-semibold text-secondary;
+    }
+
+    .badge-success {
+        @apply bg-success/15 text-success;
+    }
+
+    .badge-danger {
+        @apply bg-danger/15 text-danger;
+    }
+
+    .badge-warning {
+        @apply bg-warning/15 text-warning;
+    }
+
+    .badge-muted {
+        @apply bg-surface-muted text-muted;
+    }
+
+    .badge-info {
+        @apply bg-info/15 text-info;
+    }
+
+    .badge-recurrence {
+        @apply bg-amber-100 text-amber-800;
+    }
+
+    .page-header {
+        @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+    }
+
+    .page-header-title {
+        @apply text-xl font-semibold;
+    }
+
+    .page-header-subtitle {
+        @apply text-sm text-secondary;
+    }
+
+    .page-header-actions {
+        @apply flex flex-col gap-2 sm:flex-row sm:items-center;
+    }
+
+    .page-header-actions > * {
+        @apply w-full justify-center sm:w-auto;
+    }
+
+    .glass-overlay {
+        @apply bg-zinc-950/25 backdrop-blur-md backdrop-saturate-150;
+    }
+
+    .dropdown-panel {
+        @apply overflow-hidden rounded-xl border border-border bg-surface;
+    }
+
+    .dropdown-item {
+        @apply flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-secondary transition-colors hover:bg-surface-muted hover:text-foreground;
+    }
+
+    .dropdown-item-active {
+        @apply bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary;
+    }
+
+    .pill {
+        @apply flex items-center gap-2 rounded-lg border border-border bg-surface text-left transition-colors hover:bg-surface-muted;
+    }
+
+    .pill-active {
+        @apply border-primary bg-primary/10 hover:bg-primary/10;
+    }
+
+    .appt-block {
+        @apply absolute flex flex-col gap-0.5 overflow-hidden rounded-lg border px-2 py-1 text-xs leading-tight transition-colors;
+    }
+
+    .appt-draggable {
+        @apply cursor-grab touch-none select-none;
+    }
+
+    .appt-dragging {
+        @apply z-30 cursor-grabbing opacity-90;
+    }
+
+    .appt-scheduled {
+        @apply border-amber-200 bg-amber-50 text-amber-900;
+    }
+
+    .appt-confirmed {
+        @apply border-sky-200 bg-sky-50 text-sky-900;
+    }
+
+    .appt-completed {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-900;
+    }
+
+    .appt-cancelled {
+        @apply border-rose-200 bg-rose-50 text-rose-700;
+    }
+
+    .appt-no-show {
+        @apply border-zinc-300 bg-zinc-100 text-zinc-600;
+    }
+
+    .appt-badge {
+        @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold;
+    }
+
+    .appt-badge-scheduled {
+        @apply bg-amber-100 text-amber-800;
+    }
+
+    .appt-badge-confirmed {
+        @apply bg-sky-100 text-sky-800;
+    }
+
+    .appt-badge-completed {
+        @apply bg-emerald-100 text-emerald-800;
+    }
+
+    .appt-badge-cancelled {
+        @apply bg-rose-100 text-rose-800;
+    }
+
+    .appt-badge-no-show {
+        @apply bg-zinc-200 text-zinc-700;
+    }
+
+    .schedule-slot {
+        @apply border-b border-border/70;
+    }
+
+    .schedule-slot-hour {
+        @apply border-b border-border;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary transition-colors hover:bg-surface-muted hover:text-foreground;
+    }
+
+    .nav-link-active {
+        @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
+    }
+
+    .toast-host {
+        @apply pointer-events-none fixed bottom-4 right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2;
+    }
+
+    .toast {
+        @apply pointer-events-auto flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground;
+    }
+
+    .toast-message {
+        @apply flex-1;
+    }
+
+    .toast-close {
+        @apply text-muted transition-colors hover:text-foreground;
+    }
+}
+
+.toast-success > svg {
+    color: var(--color-success);
+}
+
+.toast-error > svg {
+    color: var(--color-danger);
+}
+
+.toast-warning > svg {
+    color: var(--color-warning);
+}
+
+.toast-info > svg {
+    color: var(--color-info);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateX(1rem);
+}
