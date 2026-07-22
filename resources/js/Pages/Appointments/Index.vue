@@ -25,6 +25,7 @@ const props = defineProps({
     appointments: { type: Array, default: () => [] },
     statuses: { type: Array, default: () => [] },
     whatsappReady: { type: Boolean, default: false },
+    bookingNotifyEnabled: { type: Boolean, default: false },
     messageTypes: { type: Array, default: () => [] },
 });
 
@@ -50,7 +51,7 @@ watch(
 watch(
     () => page.props.flash?.created_appointment,
     (created) => {
-        if (created && props.whatsappReady && created.has_phone) {
+        if (created && props.bookingNotifyEnabled && props.whatsappReady && created.has_phone) {
             notifyCreate.value = created;
         }
     },

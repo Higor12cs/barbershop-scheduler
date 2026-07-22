@@ -35,10 +35,11 @@ const commonPlaceholders = [
 const types = {
     booking: {
         label: "Agendamento",
-        description: "Enviada logo após criar um novo agendamento.",
+        description:
+            "Oferecida para envio logo após criar um novo agendamento.",
         placeholders: [...commonPlaceholders, "{link_calendario}"],
         minutesHint: null,
-        note: null,
+        note: "Esta mensagem nunca é enviada sozinha: ao criar um agendamento, aparece uma confirmação perguntando se deseja enviá-la. Desativando, a pergunta deixa de aparecer — você ainda pode enviá-la a qualquer momento pelos detalhes do agendamento.",
     },
     reminder: {
         label: "Lembrete",

@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\AppointmentNotification;
 use App\Models\Customer;
 use App\Models\Employee;
+use App\Models\NotificationSetting;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Services\Notifications\AppointmentNotifier;
@@ -91,6 +92,7 @@ class AppointmentController extends Controller
             'appointments' => $appointments->map(fn (Appointment $appointment): array => $this->serialize($appointment))->all(),
             'statuses' => AppointmentStatus::options(),
             'whatsappReady' => tenant() instanceof Tenant && tenant()->hasWhatsAppProvider(),
+            'bookingNotifyEnabled' => NotificationSetting::current()->booking_enabled,
             'messageTypes' => array_map(
                 fn (NotificationType $type): array => ['value' => $type->value, 'label' => $type->label()],
                 NotificationType::cases(),
