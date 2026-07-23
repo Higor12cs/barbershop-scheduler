@@ -247,6 +247,7 @@ function buildCreateInitial({ employeeId, date, startTime }) {
     product_id: service?.id ?? null,
     date: date ?? props.date,
     start_time: startTime ?? defaultStart(),
+    duration_minutes: service?.duration_minutes ?? "",
     price: service?.price ?? "",
     notes: "",
   };
@@ -504,6 +505,7 @@ function openEdit() {
     product_id: appointment.product_id,
     date: appointment.date,
     start_time: appointment.start_time,
+    duration_minutes: appointment.duration_minutes,
     price: appointment.price,
     notes: appointment.notes ?? "",
   };

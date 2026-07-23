@@ -151,7 +151,7 @@ function destroy() {
                                 v-model="search"
                                 type="search"
                                 class="form-control pl-9"
-                                placeholder="Buscar por cliente..."
+                                placeholder="Buscar"
                             />
                         </div>
                     </div>

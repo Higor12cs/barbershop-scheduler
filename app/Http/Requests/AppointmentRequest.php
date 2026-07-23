@@ -38,6 +38,7 @@ class AppointmentRequest extends FormRequest
             ],
             'date' => ['required', 'date_format:Y-m-d'],
             'start_time' => ['required', 'date_format:H:i'],
+            'duration_minutes' => ['required', 'integer', 'min:1', 'max:1440'],
             'price' => ['required', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'force' => ['boolean'],
@@ -55,6 +56,7 @@ class AppointmentRequest extends FormRequest
             'product_id' => 'serviço',
             'date' => 'data',
             'start_time' => 'horário',
+            'duration_minutes' => 'duração',
             'price' => 'preço',
             'notes' => 'observações',
         ];

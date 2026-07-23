@@ -1,9 +1,9 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import { route } from 'ziggy-js';
-import Icon from '../../Components/Icon.vue';
-import AppLayout from '../../Layouts/AppLayout.vue';
+import { Head, Link, useForm } from "@inertiajs/vue3";
+import { computed } from "vue";
+import { route } from "ziggy-js";
+import Icon from "../../Components/Icon.vue";
+import AppLayout from "../../Layouts/AppLayout.vue";
 
 const props = defineProps({
     employee: { type: Object, required: true },
@@ -19,17 +19,24 @@ const form = useForm({
     })),
 });
 
-const totalRanges = computed(() => form.days.reduce((total, day) => total + day.ranges.length, 0));
+const totalRanges = computed(() =>
+    form.days.reduce((total, day) => total + day.ranges.length, 0),
+);
 
 function rangeError(dayIndex, rangeIndex) {
-    return form.errors[`days.${dayIndex}.ranges.${rangeIndex}.end`] ?? form.errors[`days.${dayIndex}.ranges.${rangeIndex}.start`];
+    return (
+        form.errors[`days.${dayIndex}.ranges.${rangeIndex}.end`] ??
+        form.errors[`days.${dayIndex}.ranges.${rangeIndex}.start`]
+    );
 }
 
 function addRange(day) {
     const last = day.ranges[day.ranges.length - 1];
 
     day.ranges.push(
-        last ? { start: last.end, end: props.defaults.end } : { start: props.defaults.start, end: props.defaults.end },
+        last
+            ? { start: last.end, end: props.defaults.end }
+            : { start: props.defaults.start, end: props.defaults.end },
     );
 }
 
@@ -50,11 +57,14 @@ function copyToWeekdays(day) {
 }
 
 function submit() {
-    form
-        .transform((data) => ({
-            days: data.days.map((day) => ({ weekday: day.weekday, ranges: day.ranges })),
-        }))
-        .put(route('employees.schedule.update', props.employee.id), { preserveScroll: true });
+    form.transform((data) => ({
+        days: data.days.map((day) => ({
+            weekday: day.weekday,
+            ranges: day.ranges,
+        })),
+    })).put(route("employees.schedule.update", props.employee.id), {
+        preserveScroll: true,
+    });
 }
 </script>
 
@@ -68,15 +78,26 @@ function submit() {
                     <h1 class="page-header-title">Jornada de Trabalho</h1>
                     <p class="page-header-subtitle">
                         Defina os horários em que
-                        <span class="font-medium text-foreground">{{ employee.name }}</span>
-                        atende. Os intervalos entre as faixas ficam indisponíveis na agenda.
+                        <span class="font-medium text-foreground">{{
+                            employee.name
+                        }}</span>
+                        atende. Os intervalos entre as faixas ficam
+                        indisponíveis na agenda.
                     </p>
                 </div>
                 <div class="page-header-actions">
-                    <Link :href="route('employees.index')" class="btn btn-secondary">Voltar</Link>
-                    <button type="submit" class="btn btn-primary" :disabled="form.processing">
+                    <Link
+                        :href="route('employees.index')"
+                        class="btn btn-secondary"
+                        >Voltar</Link
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        :disabled="form.processing"
+                    >
                         <Icon name="check" class="size-4" />
-                        {{ form.processing ? 'Salvando...' : 'Salvar Jornada' }}
+                        {{ form.processing ? "Salvando..." : "Salvar Jornada" }}
                     </button>
                 </div>
             </div>
@@ -87,8 +108,9 @@ function submit() {
             >
                 <Icon name="info" class="mt-0.5 size-4 shrink-0" />
                 <p>
-                    Sem nenhuma faixa cadastrada, este funcionário fica disponível o dia todo na agenda. Adicione faixas
-                    para restringir os horários.
+                    Sem nenhuma faixa cadastrada, este funcionário fica
+                    disponível o dia todo na agenda. Adicione faixas para
+                    restringir os horários.
                 </p>
             </div>
 
@@ -102,9 +124,17 @@ function submit() {
                         :key="day.weekday"
                         class="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:gap-6"
                     >
-                        <div class="flex items-center justify-between gap-3 sm:w-44 sm:shrink-0">
-                            <span class="text-sm font-medium">{{ day.label }}</span>
-                            <span v-if="day.ranges.length === 0" class="badge badge-muted">Folga</span>
+                        <div
+                            class="flex items-center justify-between gap-3 sm:w-44 sm:shrink-0"
+                        >
+                            <span class="text-sm font-medium">{{
+                                day.label
+                            }}</span>
+                            <span
+                                v-if="day.ranges.length === 0"
+                                class="badge badge-muted"
+                                >Folga</span
+                            >
                         </div>
 
                         <div class="flex-1 space-y-2">
@@ -114,9 +144,19 @@ function submit() {
                                 class="space-y-1"
                             >
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <input v-model="range.start" type="time" step="300" class="form-control max-w-32">
+                                    <input
+                                        v-model="range.start"
+                                        type="time"
+                                        step="300"
+                                        class="form-control max-w-32"
+                                    />
                                     <span class="text-sm text-muted">até</span>
-                                    <input v-model="range.end" type="time" step="300" class="form-control max-w-32">
+                                    <input
+                                        v-model="range.end"
+                                        type="time"
+                                        step="300"
+                                        class="form-control max-w-32"
+                                    />
                                     <button
                                         type="button"
                                         class="rounded-lg border border-border p-2 text-danger transition-colors hover:bg-danger/10"
@@ -126,15 +166,22 @@ function submit() {
                                         <Icon name="trash" class="size-4" />
                                     </button>
                                 </div>
-                                <p v-if="rangeError(dayIndex, rangeIndex)" class="text-xs text-danger">
+                                <p
+                                    v-if="rangeError(dayIndex, rangeIndex)"
+                                    class="text-xs text-danger"
+                                >
                                     {{ rangeError(dayIndex, rangeIndex) }}
                                 </p>
                             </div>
 
                             <div class="flex flex-wrap items-center gap-2">
-                                <button type="button" class="btn btn-secondary px-3 py-1.5 text-xs" @click="addRange(day)">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary px-3 py-1.5 text-xs"
+                                    @click="addRange(day)"
+                                >
                                     <Icon name="plus" class="size-4" />
-                                    Adicionar faixa
+                                    Adicionar Faixa
                                 </button>
                                 <button
                                     v-if="day.ranges.length"

@@ -125,9 +125,8 @@ class AppointmentController extends Controller
     {
         $data = $request->validated();
 
-        $service = Product::query()->findOrFail($data['product_id']);
         $startsAt = Carbon::parse("{$data['date']} {$data['start_time']}");
-        $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $service->duration_minutes));
+        $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $data['duration_minutes']));
 
         $this->guardAgainstUnavailability((int) $data['employee_id'], $startsAt, $endsAt, (bool) ($data['force'] ?? false));
 
@@ -162,9 +161,8 @@ class AppointmentController extends Controller
     {
         $data = $request->validated();
 
-        $service = Product::query()->findOrFail($data['product_id']);
         $startsAt = Carbon::parse("{$data['date']} {$data['start_time']}");
-        $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $service->duration_minutes));
+        $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $data['duration_minutes']));
 
         $this->guardAgainstUnavailability((int) $data['employee_id'], $startsAt, $endsAt, (bool) ($data['force'] ?? false));
 
