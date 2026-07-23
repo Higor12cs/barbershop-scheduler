@@ -1,16 +1,19 @@
 <script setup>
-import { computed, watch } from 'vue';
-import FormField from '../../Components/FormField.vue';
-import SelectInput from '../../Components/SelectInput.vue';
-import TextInput from '../../Components/TextInput.vue';
-import CheckboxInput from '../../Components/CheckboxInput.vue';
+import { computed, watch } from "vue";
+import FormField from "../../Components/FormField.vue";
+import SelectInput from "../../Components/SelectInput.vue";
+import TextInput from "../../Components/TextInput.vue";
+import CheckboxInput from "../../Components/CheckboxInput.vue";
 
 const props = defineProps({
     form: { type: Object, required: true },
     employees: { type: Array, default: () => [] },
 });
 
-const employeeOptions = computed(() => [{ value: '', label: 'Todos os funcionários' }, ...props.employees]);
+const employeeOptions = computed(() => [
+    { value: "", label: "Todos os Funcionários" },
+    ...props.employees,
+]);
 
 watch(
     () => props.form.start_date,
@@ -34,28 +37,55 @@ watch(
                 hint="Deixe em “Todos” para fechar a agenda inteira, como em um feriado."
                 class="sm:col-span-2"
             >
-                <SelectInput v-model="form.employee_id" :options="employeeOptions" />
+                <SelectInput
+                    v-model="form.employee_id"
+                    :options="employeeOptions"
+                />
             </FormField>
 
             <FormField label="Período" class="sm:col-span-2">
-                <CheckboxInput v-model="form.all_day" label="Bloquear os dias inteiros" />
+                <CheckboxInput
+                    v-model="form.all_day"
+                    label="Bloquear os Dias Inteiros"
+                />
             </FormField>
 
             <FormField label="Data de Início" :error="form.errors.start_date">
-                <input v-model="form.start_date" type="date" class="form-control">
+                <input
+                    v-model="form.start_date"
+                    type="date"
+                    class="form-control"
+                />
             </FormField>
 
             <FormField label="Data de Fim" :error="form.errors.end_date">
-                <input v-model="form.end_date" type="date" class="form-control">
+                <input
+                    v-model="form.end_date"
+                    type="date"
+                    class="form-control"
+                />
             </FormField>
 
             <template v-if="!form.all_day">
-                <FormField label="Horário de Início" :error="form.errors.start_time">
-                    <input v-model="form.start_time" type="time" step="300" class="form-control">
+                <FormField
+                    label="Horário de Início"
+                    :error="form.errors.start_time"
+                >
+                    <input
+                        v-model="form.start_time"
+                        type="time"
+                        step="300"
+                        class="form-control"
+                    />
                 </FormField>
 
                 <FormField label="Horário de Fim" :error="form.errors.end_time">
-                    <input v-model="form.end_time" type="time" step="300" class="form-control">
+                    <input
+                        v-model="form.end_time"
+                        type="time"
+                        step="300"
+                        class="form-control"
+                    />
                 </FormField>
             </template>
 
@@ -65,7 +95,10 @@ watch(
                 hint="Aparece na agenda sobre a faixa bloqueada."
                 class="sm:col-span-2"
             >
-                <TextInput v-model="form.reason" placeholder="Férias, folga, feriado..." />
+                <TextInput
+                    v-model="form.reason"
+                    placeholder="Férias, folga, feriado..."
+                />
             </FormField>
         </div>
     </div>

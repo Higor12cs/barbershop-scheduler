@@ -28,7 +28,7 @@ const navGroups = [
     {
         title: "Principal",
         items: [
-            { label: "Painel", icon: "home", route: "dashboard.index" },
+            { label: "Início", icon: "home", route: "dashboard.index" },
             {
                 label: "Agenda",
                 icon: "calendar",
@@ -36,10 +36,22 @@ const navGroups = [
                 module: "appointments",
             },
             {
+                label: "Vendas",
+                icon: "shopping-cart",
+                route: "sales.index",
+                module: "sales",
+            },
+            {
                 label: "Recorrências",
                 icon: "repeat",
                 route: "recurrences.index",
                 module: "recurrences",
+            },
+            {
+                label: "Relatórios",
+                icon: "chart-bar",
+                route: "reports.index",
+                module: "reports",
             },
         ],
     },
@@ -63,23 +75,6 @@ const navGroups = [
                 icon: "package",
                 route: "products.index",
                 module: "products",
-            },
-        ],
-    },
-    {
-        title: "Financeiro",
-        items: [
-            {
-                label: "Vendas",
-                icon: "shopping-cart",
-                route: "sales.index",
-                module: "sales",
-            },
-            {
-                label: "Relatórios",
-                icon: "chart-bar",
-                route: "reports.index",
-                module: "reports",
             },
         ],
     },

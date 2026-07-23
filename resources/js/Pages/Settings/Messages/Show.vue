@@ -197,7 +197,7 @@ function submit() {
                             ref="textarea"
                             v-model="form.template"
                             class="form-control form-control-textarea"
-                            rows="4"
+                            rows="8"
                         />
                     </FormField>
 
