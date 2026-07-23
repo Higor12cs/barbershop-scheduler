@@ -53,7 +53,7 @@ function toggleSubmenu(item) {
 </script>
 
 <template>
-    <nav class="flex flex-1 flex-col overflow-y-auto">
+    <nav class="sidebar-scroll flex flex-1 flex-col overflow-y-auto pr-1">
         <div
             v-for="group in groups"
             :key="group.title"

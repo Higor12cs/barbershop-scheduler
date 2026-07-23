@@ -41,13 +41,6 @@ const navGroups = [
                 route: "recurrences.index",
                 module: "recurrences",
             },
-            {
-                label: "Bloqueios",
-                icon: "x-circle",
-                route: "blocks.index",
-                module: "appointments",
-                permission: "blocks.view",
-            },
         ],
     },
     {
@@ -61,7 +54,7 @@ const navGroups = [
             },
             {
                 label: "Funcionários",
-                icon: "briefcase",
+                icon: "users",
                 route: "employees.index",
                 module: "employees",
             },
@@ -93,6 +86,13 @@ const navGroups = [
     {
         title: "Configurações",
         items: [
+            {
+                label: "Bloqueios",
+                icon: "x-circle",
+                route: "blocks.index",
+                module: "appointments",
+                permission: "blocks.view",
+            },
             {
                 label: "WhatsApp",
                 icon: "message-circle",

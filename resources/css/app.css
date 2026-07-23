@@ -292,6 +292,14 @@
         @apply absolute left-1 top-0.5 truncate rounded px-1 text-[10px] font-medium text-danger;
     }
 
+    .sidebar-scroll {
+        /* Reserves the scrollbar's own column so it sits beside the links
+           instead of floating over them. */
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
+    }
+
     .nav-link {
         @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary transition-colors hover:bg-surface-muted hover:text-foreground;
     }
