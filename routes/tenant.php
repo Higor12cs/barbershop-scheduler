@@ -5,13 +5,16 @@ declare(strict_types=1);
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RecurrenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ScheduleBlockController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Settings\MessageSettingController;
+use App\Http\Controllers\Settings\NotificationWindowController;
 use App\Http\Controllers\Settings\RecurrenceSettingController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
@@ -46,7 +49,12 @@ Route::middleware([
 
     Route::post('customers/quick', [CustomerController::class, 'quickStore'])->name('customers.quick-store');
     Route::put('customers/{customer}/quick', [CustomerController::class, 'quickUpdate'])->name('customers.quick-update');
+    Route::resource('blocks', ScheduleBlockController::class)->except(['show']);
+
     Route::resource('customers', CustomerController::class);
+
+    Route::get('employees/{employee}/schedule', [EmployeeScheduleController::class, 'edit'])->name('employees.schedule.edit');
+    Route::put('employees/{employee}/schedule', [EmployeeScheduleController::class, 'update'])->name('employees.schedule.update');
     Route::resource('employees', EmployeeController::class);
     Route::resource('products', ProductController::class)->except(['show']);
     Route::resource('recurrences', RecurrenceController::class)->except(['show']);
@@ -64,6 +72,8 @@ Route::middleware([
         Route::resource('roles', RoleController::class)->except(['show']);
 
         Route::redirect('/messages', '/settings/messages/booking')->name('messages.index');
+        Route::get('/messages/window', [NotificationWindowController::class, 'show'])->name('messages.window');
+        Route::put('/messages/window', [NotificationWindowController::class, 'update'])->name('messages.window.update');
         Route::get('/messages/{type}', [MessageSettingController::class, 'show'])->name('messages.show')->whereIn('type', MessageSettingController::TYPES);
         Route::put('/messages/{type}', [MessageSettingController::class, 'update'])->name('messages.update')->whereIn('type', MessageSettingController::TYPES);
 

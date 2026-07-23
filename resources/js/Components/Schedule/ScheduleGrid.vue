@@ -8,30 +8,41 @@ const props = defineProps({
     appointments: { type: Array, default: () => [] },
     settings: { type: Object, required: true },
     nowLine: { type: Object, default: () => ({ minutes: null, columnKey: null }) },
+    unavailable: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits(['slot-click', 'appointment-click', 'reschedule']);
 
-const HOUR_HEIGHT = 132;
+const HOUR_HEIGHT = 112;
 const DRAG_THRESHOLD = 5;
+
+/** Breathing room between a card and its column / time slot. */
+const BLOCK_INSET_X = 4;
+const BLOCK_INSET_Y = 3;
 
 const dayStart = computed(() => props.settings.start_hour * 60);
 const dayEnd = computed(() => props.settings.end_hour * 60);
 const totalMinutes = computed(() => dayEnd.value - dayStart.value);
 const pxPerMinute = HOUR_HEIGHT / 60;
-const slotPx = computed(() => props.settings.slot_minutes * pxPerMinute);
 const totalHeight = computed(() => totalMinutes.value * pxPerMinute);
+
+/**
+ * Clicks and drags snap to the visible lines, never to a finer step, so a slot
+ * always lands on :00 or :30.
+ */
+const lineMinutes = computed(() => props.settings.line_minutes ?? 30);
+const linePx = computed(() => lineMinutes.value * pxPerMinute);
+const lineCount = computed(() => Math.round(totalMinutes.value / lineMinutes.value));
 
 const hours = computed(() =>
     Array.from({ length: props.settings.end_hour - props.settings.start_hour + 1 }, (_, index) => ({
         label: minutesToTime((props.settings.start_hour + index) * 60),
         top: index * HOUR_HEIGHT,
+        // Labels straddle their hour line, which would clip the first one
+        // against the top of the scroller.
+        centered: index > 0,
     })),
 );
-
-const lineMinutes = computed(() => props.settings.line_minutes ?? 30);
-const linePx = computed(() => lineMinutes.value * pxPerMinute);
-const lineCount = computed(() => Math.round(totalMinutes.value / lineMinutes.value));
 
 const gridStyle = computed(() => ({
     gridTemplateColumns: `64px repeat(${props.columns.length}, minmax(150px, 1fr))`,
@@ -72,19 +83,38 @@ function blocksFor(columnKey) {
     return props.appointments.filter((appointment) => effective(appointment).columnKey === columnKey);
 }
 
+function unavailableFor(columnKey) {
+    return (props.unavailable[columnKey] ?? []).filter((range) => range.end > dayStart.value && range.start < dayEnd.value);
+}
+
+function unavailableStyle(range) {
+    const start = Math.max(range.start, dayStart.value);
+    const end = Math.min(range.end, dayEnd.value);
+
+    return {
+        top: `${(start - dayStart.value) * pxPerMinute}px`,
+        height: `${(end - start) * pxPerMinute}px`,
+    };
+}
+
 function blockStyle(appointment) {
     const { startMinutes } = effective(appointment);
     const top = (startMinutes - dayStart.value) * pxPerMinute;
-    const height = Math.max(appointment.duration_minutes * pxPerMinute - 2, 18);
+    const height = Math.max(appointment.duration_minutes * pxPerMinute - BLOCK_INSET_Y * 2, 18);
 
-    return { top: `${top}px`, height: `${height}px`, left: '2px', right: '2px' };
+    return {
+        top: `${top + BLOCK_INSET_Y}px`,
+        height: `${height}px`,
+        left: `${BLOCK_INSET_X}px`,
+        right: `${BLOCK_INSET_X}px`,
+    };
 }
 
 function minutesFromTop(top) {
     const raw = top / pxPerMinute + dayStart.value;
-    const snapped = Math.round(raw / props.settings.slot_minutes) * props.settings.slot_minutes;
+    const snapped = Math.round(raw / lineMinutes.value) * lineMinutes.value;
 
-    return Math.min(Math.max(snapped, dayStart.value), dayEnd.value - props.settings.slot_minutes);
+    return Math.min(Math.max(snapped, dayStart.value), dayEnd.value - lineMinutes.value);
 }
 
 function nowLineTop() {
@@ -151,8 +181,8 @@ function onBlockPointerMove(event) {
     }
 
     let newTop = dragging.value.originTop + dy;
-    newTop = Math.round(newTop / slotPx.value) * slotPx.value;
-    newTop = Math.min(Math.max(newTop, 0), totalHeight.value - slotPx.value);
+    newTop = Math.round(newTop / linePx.value) * linePx.value;
+    newTop = Math.min(Math.max(newTop, 0), totalHeight.value - linePx.value);
     dragging.value.top = newTop;
 
     const columnKey = columnKeyAtPoint(event.clientX, event.clientY);
@@ -189,7 +219,7 @@ function onBlockPointerCancel() {
 </script>
 
 <template>
-    <div ref="scroller" class="max-h-[calc(100vh-13rem)] overflow-auto rounded-xl border border-border">
+    <div ref="scroller" class="overflow-auto rounded-xl border border-border">
         <div class="grid min-w-max" :style="gridStyle">
             <div class="sticky left-0 top-0 z-30 border-b border-r border-border bg-surface" />
             <div
@@ -208,7 +238,8 @@ function onBlockPointerCancel() {
                 <div
                     v-for="hour in hours"
                     :key="hour.label"
-                    class="absolute -translate-y-1/2 pr-2 text-right text-xs text-muted"
+                    class="absolute pr-2 text-right text-xs text-muted"
+                    :class="{ '-translate-y-1/2': hour.centered }"
                     :style="{ top: `${hour.top}px`, right: '0' }"
                 >
                     {{ hour.label }}
@@ -230,6 +261,16 @@ function onBlockPointerCancel() {
                         :class="(index * lineMinutes) % 60 === 0 ? 'schedule-slot-hour' : 'schedule-slot'"
                         :style="{ height: `${linePx}px` }"
                     />
+                </div>
+
+                <div
+                    v-for="(range, index) in unavailableFor(column.key)"
+                    :key="`off-${column.key}-${index}`"
+                    class="schedule-unavailable"
+                    :class="range.type === 'block' ? 'schedule-unavailable-block' : 'schedule-unavailable-off'"
+                    :style="unavailableStyle(range)"
+                >
+                    <span v-if="range.type === 'block'" class="schedule-unavailable-label">{{ range.label }}</span>
                 </div>
 
                 <div

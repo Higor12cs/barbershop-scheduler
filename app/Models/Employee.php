@@ -31,4 +31,20 @@ class Employee extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    /**
+     * @return HasMany<EmployeeSchedule, $this>
+     */
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(EmployeeSchedule::class);
+    }
+
+    /**
+     * @return HasMany<ScheduleBlock, $this>
+     */
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(ScheduleBlock::class);
+    }
 }

@@ -17,21 +17,19 @@ class GenerateRecurrenceAppointments extends Command
     {
         Tenant::query()->where('active', true)->cursor()->each(function (Tenant $tenant) use ($generator): void {
             $tenant->run(function () use ($tenant, $generator): void {
-                $totals = ['created' => 0, 'skipped_existing' => 0, 'skipped_conflicts' => 0];
+                $totals = RecurrenceGenerator::emptySummary();
 
                 Recurrence::query()
                     ->active()
                     ->with('product')
                     ->cursor()
                     ->each(function (Recurrence $recurrence) use ($generator, &$totals): void {
-                        $summary = $generator->generate($recurrence);
-
-                        $totals['created'] += $summary['created'];
-                        $totals['skipped_existing'] += $summary['skipped_existing'];
-                        $totals['skipped_conflicts'] += $summary['skipped_conflicts'];
+                        foreach ($generator->generate($recurrence) as $key => $count) {
+                            $totals[$key] += $count;
+                        }
                     });
 
-                $this->line("{$tenant->name}: {$totals['created']} criados, {$totals['skipped_existing']} existentes, {$totals['skipped_conflicts']} conflitos.");
+                $this->line("{$tenant->name}: {$totals['created']} criados, {$totals['skipped_existing']} existentes, {$totals['skipped_conflicts']} conflitos, {$totals['skipped_unavailable']} indisponíveis.");
             });
         });
 

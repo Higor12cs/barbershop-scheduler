@@ -18,6 +18,15 @@ class Permissions
                 'appointments.delete' => ['label' => 'Excluir', 'routes' => ['appointments.destroy']],
             ],
         ],
+        'blocks' => [
+            'label' => 'Bloqueios',
+            'permissions' => [
+                'blocks.view' => ['label' => 'Visualizar', 'routes' => ['blocks.index']],
+                'blocks.create' => ['label' => 'Criar', 'routes' => ['blocks.create', 'blocks.store']],
+                'blocks.update' => ['label' => 'Editar', 'routes' => ['blocks.edit', 'blocks.update']],
+                'blocks.delete' => ['label' => 'Excluir', 'routes' => ['blocks.destroy']],
+            ],
+        ],
         'customers' => [
             'label' => 'Clientes',
             'permissions' => [
@@ -32,7 +41,7 @@ class Permissions
             'permissions' => [
                 'employees.view' => ['label' => 'Visualizar', 'routes' => ['employees.index', 'employees.show']],
                 'employees.create' => ['label' => 'Criar', 'routes' => ['employees.create', 'employees.store']],
-                'employees.update' => ['label' => 'Editar', 'routes' => ['employees.edit', 'employees.update']],
+                'employees.update' => ['label' => 'Editar', 'routes' => ['employees.edit', 'employees.update', 'employees.schedule.edit', 'employees.schedule.update']],
                 'employees.delete' => ['label' => 'Excluir', 'routes' => ['employees.destroy']],
             ],
         ],
@@ -89,8 +98,8 @@ class Permissions
         'notifications' => [
             'label' => 'Notificações',
             'permissions' => [
-                'notifications.view' => ['label' => 'Visualizar', 'routes' => ['settings.messages.index', 'settings.messages.show']],
-                'notifications.update' => ['label' => 'Editar', 'routes' => ['settings.messages.update']],
+                'notifications.view' => ['label' => 'Visualizar', 'routes' => ['settings.messages.index', 'settings.messages.show', 'settings.messages.window']],
+                'notifications.update' => ['label' => 'Editar', 'routes' => ['settings.messages.update', 'settings.messages.window.update']],
             ],
         ],
         'whatsapp' => [

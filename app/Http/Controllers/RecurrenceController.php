@@ -88,7 +88,7 @@ class RecurrenceController extends Controller
 
         $this->generator->clearFutureScheduled($recurrence);
 
-        $summary = ['created' => 0, 'skipped_existing' => 0, 'skipped_conflicts' => 0];
+        $summary = RecurrenceGenerator::emptySummary();
 
         if ($recurrence->active) {
             $summary = $this->generator->generate($recurrence->fresh());
@@ -107,14 +107,24 @@ class RecurrenceController extends Controller
     }
 
     /**
-     * @param  array{created: int, skipped_existing: int, skipped_conflicts: int}  $summary
+     * @param  array{created: int, skipped_existing: int, skipped_conflicts: int, skipped_unavailable: int}  $summary
      */
     private function summaryMessage(array $summary): string
     {
         $message = "Recorrência salva. {$summary['created']} agendamentos gerados";
 
+        $skipped = [];
+
         if ($summary['skipped_conflicts'] > 0) {
-            $message .= " ({$summary['skipped_conflicts']} ignorados por conflito)";
+            $skipped[] = "{$summary['skipped_conflicts']} por conflito";
+        }
+
+        if ($summary['skipped_unavailable'] > 0) {
+            $skipped[] = "{$summary['skipped_unavailable']} fora da jornada ou em bloqueio";
+        }
+
+        if ($skipped !== []) {
+            $message .= ' ('.implode(', ', $skipped).' ignorados)';
         }
 
         return $message.'.';

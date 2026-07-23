@@ -7,6 +7,7 @@ import FormField from '../FormField.vue';
 import SelectInput from '../SelectInput.vue';
 import MoneyInput from '../MoneyInput.vue';
 import Icon from '../Icon.vue';
+import ConfirmDialog from '../ConfirmDialog.vue';
 import CustomerCombobox from './CustomerCombobox.vue';
 import CustomerQuickForm from './CustomerQuickForm.vue';
 import { formatBRL } from '../../Support/money.js';
@@ -37,12 +38,14 @@ const localCustomers = ref([]);
 const showQuickForm = ref(false);
 const quickCustomer = ref(null);
 const quickInitialName = ref('');
+const unavailableReason = ref(null);
 
 watch(
     () => props.show,
     (visible) => {
         if (visible) {
             localCustomers.value = [...props.customers];
+            unavailableReason.value = null;
 
             if (props.initial) {
                 form.clearErrors();
@@ -100,17 +103,34 @@ function onServiceChange(value) {
 
 const title = computed(() => (props.mode === 'edit' ? 'Editar Agendamento' : 'Criar Novo Agendamento'));
 
-function submit() {
+function send(force) {
     const options = {
         preserveScroll: true,
-        onSuccess: () => emit('close'),
+        onSuccess: () => {
+            unavailableReason.value = null;
+            emit('close');
+        },
+        onError: (errors) => {
+            unavailableReason.value = errors.availability ?? null;
+        },
     };
 
+    form.transform((data) => ({ ...data, employee_id: Number(data.employee_id), force }));
+
     if (props.mode === 'edit') {
-        form.transform((data) => ({ ...data, employee_id: Number(data.employee_id) })).patch(route('appointments.update', props.appointmentId), options);
+        form.patch(route('appointments.update', props.appointmentId), options);
     } else {
-        form.transform((data) => ({ ...data, employee_id: Number(data.employee_id) })).post(route('appointments.store'), options);
+        form.post(route('appointments.store'), options);
     }
+}
+
+function submit() {
+    send(false);
+}
+
+function forceSubmit() {
+    unavailableReason.value = null;
+    send(true);
 }
 </script>
 
@@ -161,6 +181,17 @@ function submit() {
             :initial-name="quickInitialName"
             @saved="onCustomerSaved"
             @close="showQuickForm = false"
+        />
+
+        <ConfirmDialog
+            :show="unavailableReason !== null"
+            title="Horário Indisponível"
+            :message="`${unavailableReason} Deseja agendar mesmo assim?`"
+            confirm-label="Agendar Mesmo Assim"
+            variant="primary"
+            :processing="form.processing"
+            @confirm="forceSubmit"
+            @cancel="unavailableReason = null"
         />
 
         <template #footer>

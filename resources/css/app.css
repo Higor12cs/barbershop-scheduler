@@ -263,6 +263,35 @@
         @apply border-b border-border;
     }
 
+    .schedule-unavailable {
+        @apply pointer-events-none absolute inset-x-0 overflow-hidden;
+    }
+
+    .schedule-unavailable-off {
+        background-image: repeating-linear-gradient(
+            135deg,
+            var(--color-surface-muted) 0px,
+            var(--color-surface-muted) 6px,
+            transparent 6px,
+            transparent 12px
+        );
+    }
+
+    .schedule-unavailable-block {
+        @apply bg-danger/10;
+        background-image: repeating-linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-danger) 18%, transparent) 0px,
+            color-mix(in srgb, var(--color-danger) 18%, transparent) 6px,
+            transparent 6px,
+            transparent 12px
+        );
+    }
+
+    .schedule-unavailable-label {
+        @apply absolute left-1 top-0.5 truncate rounded px-1 text-[10px] font-medium text-danger;
+    }
+
     .nav-link {
         @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary transition-colors hover:bg-surface-muted hover:text-foreground;
     }

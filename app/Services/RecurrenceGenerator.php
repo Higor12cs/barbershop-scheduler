@@ -10,12 +10,14 @@ use Illuminate\Support\Carbon;
 
 class RecurrenceGenerator
 {
+    public function __construct(private AvailabilityService $availability) {}
+
     /**
-     * @return array{created: int, skipped_existing: int, skipped_conflicts: int}
+     * @return array{created: int, skipped_existing: int, skipped_conflicts: int, skipped_unavailable: int}
      */
     public function generate(Recurrence $recurrence, ?int $horizonDays = null): array
     {
-        $summary = ['created' => 0, 'skipped_existing' => 0, 'skipped_conflicts' => 0];
+        $summary = self::emptySummary();
 
         if (! $recurrence->active) {
             return $summary;
@@ -57,6 +59,12 @@ class RecurrenceGenerator
                 continue;
             }
 
+            if ($this->availability->reasonFor($recurrence->employee_id, $startsAt, $endsAt) !== null) {
+                $summary['skipped_unavailable']++;
+
+                continue;
+            }
+
             Appointment::create([
                 'customer_id' => $recurrence->customer_id,
                 'employee_id' => $recurrence->employee_id,
@@ -73,6 +81,14 @@ class RecurrenceGenerator
         }
 
         return $summary;
+    }
+
+    /**
+     * @return array{created: int, skipped_existing: int, skipped_conflicts: int, skipped_unavailable: int}
+     */
+    public static function emptySummary(): array
+    {
+        return ['created' => 0, 'skipped_existing' => 0, 'skipped_conflicts' => 0, 'skipped_unavailable' => 0];
     }
 
     public function clearFutureScheduled(Recurrence $recurrence): int

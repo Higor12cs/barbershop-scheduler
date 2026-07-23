@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\NotificationWindow;
 use Illuminate\Database\Eloquent\Model;
 
 class NotificationSetting extends Model
@@ -22,6 +23,8 @@ class NotificationSetting extends Model
         'booking_enabled',
         'booking_template',
         'recurrence_horizon_days',
+        'send_window_start',
+        'send_window_end',
     ];
 
     protected function casts(): array
@@ -33,7 +36,21 @@ class NotificationSetting extends Model
             'confirmation_minutes_before' => 'integer',
             'booking_enabled' => 'boolean',
             'recurrence_horizon_days' => 'integer',
+            'send_window_start' => 'integer',
+            'send_window_end' => 'integer',
         ];
+    }
+
+    /**
+     * Falls back to the defaults so a deploy that ships code before running the
+     * migration keeps sending, instead of failing every scheduler tick.
+     */
+    public function sendWindow(): NotificationWindow
+    {
+        return new NotificationWindow(
+            $this->send_window_start ?? NotificationWindow::DEFAULT_START,
+            $this->send_window_end ?? NotificationWindow::DEFAULT_END,
+        );
     }
 
     public static function current(): self
@@ -48,6 +65,8 @@ class NotificationSetting extends Model
             'booking_enabled' => false,
             'booking_template' => self::DEFAULT_BOOKING_TEMPLATE,
             'recurrence_horizon_days' => 30,
+            'send_window_start' => NotificationWindow::DEFAULT_START,
+            'send_window_end' => NotificationWindow::DEFAULT_END,
         ]);
     }
 }

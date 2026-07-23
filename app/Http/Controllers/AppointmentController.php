@@ -13,9 +13,11 @@ use App\Models\Employee;
 use App\Models\NotificationSetting;
 use App\Models\Product;
 use App\Models\Tenant;
+use App\Services\AvailabilityService;
 use App\Services\Notifications\AppointmentNotifier;
 use App\Services\SaleService;
-use App\Support\ScheduleSettings;
+use App\Support\WorkingHours;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -27,6 +29,8 @@ use Inertia\Response;
 
 class AppointmentController extends Controller
 {
+    public function __construct(private AvailabilityService $availability) {}
+
     public function index(Request $request): Response
     {
         $view = $request->string('view')->toString();
@@ -50,6 +54,20 @@ class AppointmentController extends Controller
             ->orderBy('starts_at')
             ->get();
 
+        $employees = Employee::query()
+            ->where('active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'color']);
+
+        $dates = [];
+
+        for ($day = $rangeStart->copy(); $day->lessThan($rangeEnd); $day->addDay()) {
+            $dates[] = $day->toDateString();
+        }
+
+        $employeeIds = $employees->pluck('id')->all();
+        $settings = $this->availability->gridSettings($employeeIds, $this->occupiedRanges($appointments));
+
         return Inertia::render('Appointments/Index', [
             'view' => $view,
             'date' => $date->toDateString(),
@@ -57,16 +75,19 @@ class AppointmentController extends Controller
             'rangeStart' => $rangeStart->toDateString(),
             'rangeEnd' => $rangeEnd->copy()->subDay()->toDateString(),
             'selectedEmployeeId' => $selectedEmployeeId,
-            'settings' => ScheduleSettings::toArray(),
-            'employees' => Employee::query()
-                ->where('active', true)
-                ->orderBy('name')
-                ->get(['id', 'name', 'color'])
+            'settings' => $settings,
+            'employees' => $employees
                 ->map(fn (Employee $employee): array => [
                     'id' => $employee->id,
                     'name' => $employee->name,
                     'color' => $employee->color,
                 ])->all(),
+            'availability' => $this->availability->calendar(
+                $employeeIds,
+                $dates,
+                $settings['start_hour'] * 60,
+                $settings['end_hour'] * 60,
+            ),
             'services' => Product::query()
                 ->where('active', true)
                 ->where('type', ProductType::Service->value)
@@ -108,6 +129,8 @@ class AppointmentController extends Controller
         $startsAt = Carbon::parse("{$data['date']} {$data['start_time']}");
         $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $service->duration_minutes));
 
+        $this->guardAgainstUnavailability((int) $data['employee_id'], $startsAt, $endsAt, (bool) ($data['force'] ?? false));
+
         $appointment = DB::transaction(function () use ($data, $startsAt, $endsAt): Appointment {
             $this->guardAgainstOverlap((int) $data['employee_id'], $startsAt, $endsAt);
 
@@ -143,6 +166,8 @@ class AppointmentController extends Controller
         $startsAt = Carbon::parse("{$data['date']} {$data['start_time']}");
         $endsAt = $startsAt->copy()->addMinutes(max(5, (int) $service->duration_minutes));
 
+        $this->guardAgainstUnavailability((int) $data['employee_id'], $startsAt, $endsAt, (bool) ($data['force'] ?? false));
+
         DB::transaction(function () use ($appointment, $data, $startsAt, $endsAt): void {
             $this->guardAgainstOverlap((int) $data['employee_id'], $startsAt, $endsAt, $appointment->id);
 
@@ -166,11 +191,14 @@ class AppointmentController extends Controller
             'employee_id' => ['required', 'integer', Rule::exists('employees', 'id')->where('active', true)],
             'date' => ['required', 'date_format:Y-m-d'],
             'start_time' => ['required', 'date_format:H:i'],
+            'force' => ['boolean'],
         ]);
 
         $duration = (int) $appointment->starts_at->diffInMinutes($appointment->ends_at);
         $startsAt = Carbon::parse("{$data['date']} {$data['start_time']}");
         $endsAt = $startsAt->copy()->addMinutes(max(5, $duration));
+
+        $this->guardAgainstUnavailability((int) $data['employee_id'], $startsAt, $endsAt, (bool) ($data['force'] ?? false));
 
         $rescheduled = DB::transaction(function () use ($appointment, $data, $startsAt, $endsAt): bool {
             if (Appointment::query()->overlapping((int) $data['employee_id'], $startsAt, $endsAt, $appointment->id)->lockForUpdate()->exists()) {
@@ -257,6 +285,41 @@ class AppointmentController extends Controller
             throw ValidationException::withMessages([
                 'start_time' => 'Este horário conflita com outro agendamento do funcionário.',
             ]);
+        }
+    }
+
+    /**
+     * Minute ranges taken by the listed appointments, so the grid never hides
+     * one that sits outside the configured shifts.
+     *
+     * @param  Collection<int, Appointment>  $appointments
+     * @return array<int, array{start: int, end: int}>
+     */
+    private function occupiedRanges(Collection $appointments): array
+    {
+        return $appointments->map(fn (Appointment $appointment): array => [
+            'start' => $appointment->starts_at->hour * 60 + $appointment->starts_at->minute,
+            'end' => $appointment->ends_at->isSameDay($appointment->starts_at)
+                ? $appointment->ends_at->hour * 60 + $appointment->ends_at->minute
+                : WorkingHours::MINUTES_IN_DAY,
+        ])->all();
+    }
+
+    /**
+     * Rejects slots outside the employee's working hours or inside a schedule
+     * block. Reported under the dedicated `availability` key so the client can
+     * offer to send the request again with `force`.
+     */
+    private function guardAgainstUnavailability(int $employeeId, Carbon $startsAt, Carbon $endsAt, bool $force): void
+    {
+        if ($force) {
+            return;
+        }
+
+        $reason = $this->availability->reasonFor($employeeId, $startsAt, $endsAt);
+
+        if ($reason !== null) {
+            throw ValidationException::withMessages(['availability' => $reason]);
         }
     }
 

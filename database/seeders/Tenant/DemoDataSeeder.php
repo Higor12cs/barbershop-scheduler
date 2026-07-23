@@ -85,7 +85,7 @@ class DemoDataSeeder extends Seeder
         $services = Product::query()->where('type', ProductType::Service->value)->orderBy('id')->get()->values();
 
         $today = Carbon::today();
-        $sales = new SaleService;
+        $sales = app(SaleService::class);
 
         $specs = [
             [-2, '09:00', 0, 0, 0],
@@ -170,7 +170,7 @@ class DemoDataSeeder extends Seeder
             ],
         ];
 
-        $generator = new RecurrenceGenerator;
+        $generator = app(RecurrenceGenerator::class);
 
         foreach ($recurrences as $data) {
             $recurrence = Recurrence::create($data);

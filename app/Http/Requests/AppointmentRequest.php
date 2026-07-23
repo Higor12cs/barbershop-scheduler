@@ -40,6 +40,7 @@ class AppointmentRequest extends FormRequest
             'start_time' => ['required', 'date_format:H:i'],
             'price' => ['required', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'force' => ['boolean'],
         ];
     }
 

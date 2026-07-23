@@ -70,6 +70,7 @@ class Modules
 
         return match (true) {
             str_starts_with($name, 'appointments.') => self::APPOINTMENTS,
+            str_starts_with($name, 'blocks.') => self::APPOINTMENTS,
             str_starts_with($name, 'customers.') => self::CUSTOMERS,
             str_starts_with($name, 'employees.') => self::EMPLOYEES,
             str_starts_with($name, 'products.') => self::PRODUCTS,

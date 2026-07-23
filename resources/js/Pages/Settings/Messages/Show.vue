@@ -45,14 +45,16 @@ const types = {
         label: "Lembrete",
         description: "Enviada antes do horário como lembrete do atendimento.",
         placeholders: commonPlaceholders,
-        minutesHint: "Quantos minutos antes do horário o lembrete será enviado.",
+        minutesHint:
+            "Quantos minutos antes do horário o lembrete será enviado, respeitando a janela de envio.",
         note: null,
     },
     confirmation: {
         label: "Confirmação",
         description: "Enviada antes do horário pedindo a confirmação do cliente.",
         placeholders: commonPlaceholders,
-        minutesHint: "Quantos minutos antes do horário a confirmação será enviada.",
+        minutesHint:
+            "Quantos minutos antes do horário a confirmação será enviada, respeitando a janela de envio.",
         note: 'Enviada com os botões "Confirmar" e "Cancelar" para o cliente responder.',
     },
 };
@@ -141,6 +143,12 @@ function submit() {
                     :class="{ 'pill-active': tab.key === type }"
                 >
                     {{ tab.label }}
+                </Link>
+                <Link
+                    :href="route('settings.messages.window')"
+                    class="pill px-4 py-2 text-sm font-medium"
+                >
+                    Janela de Envio
                 </Link>
             </div>
 

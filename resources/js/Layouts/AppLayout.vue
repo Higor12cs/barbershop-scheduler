@@ -8,6 +8,12 @@ import Icon from "../Components/Icon.vue";
 import SidebarNav from "../Components/SidebarNav.vue";
 import ToastHost from "../Components/ToastHost.vue";
 
+defineProps({
+    // Pins the page to the viewport so the slot can own the leftover height
+    // instead of growing the document. Pages that need to scroll leave it off.
+    fullHeight: { type: Boolean, default: false },
+});
+
 const page = usePage();
 
 const appName = computed(() => page.props.appName);
@@ -34,6 +40,13 @@ const navGroups = [
                 icon: "repeat",
                 route: "recurrences.index",
                 module: "recurrences",
+            },
+            {
+                label: "Bloqueios",
+                icon: "x-circle",
+                route: "blocks.index",
+                module: "appointments",
+                permission: "blocks.view",
             },
         ],
     },
@@ -184,12 +197,12 @@ function logout() {
 </script>
 
 <template>
-    <div class="min-h-screen">
+    <div :class="fullHeight ? 'flex h-dvh flex-col overflow-hidden' : 'min-h-screen'">
         <ToastHost />
         <CommandPalette :modules="commandModules" />
 
         <div
-            class="flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 lg:hidden"
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 lg:hidden"
         >
             <span class="flex items-center gap-2 font-semibold">
                 <span
@@ -208,7 +221,7 @@ function logout() {
             </button>
         </div>
 
-        <div class="flex min-h-screen">
+        <div class="flex" :class="fullHeight ? 'min-h-0 flex-1' : 'min-h-screen'">
             <aside class="hidden shrink-0 p-3 lg:block">
                 <div
                     class="sticky top-3 flex h-[calc(100vh-1.5rem)] w-64 flex-col rounded-2xl border border-border bg-surface p-3"
@@ -289,8 +302,12 @@ function logout() {
 
             <main
                 class="min-w-0 flex-1 overflow-hidden p-4 lg:py-8 lg:pr-8 lg:pl-3"
+                :class="{ 'flex flex-col': fullHeight }"
             >
-                <div class="mx-auto w-full">
+                <div
+                    class="mx-auto w-full"
+                    :class="{ 'flex min-h-0 flex-1 flex-col': fullHeight }"
+                >
                     <slot />
                 </div>
             </main>

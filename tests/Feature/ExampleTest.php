@@ -1,7 +1,9 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
+test('the root url redirects guests to the login page', function () {
+    $this->get('/')->assertRedirect('/login');
+});
 
-    $response->assertStatus(200);
+test('the login route is named so redirects can resolve it', function () {
+    expect(route('login', absolute: false))->toBe('/login');
 });

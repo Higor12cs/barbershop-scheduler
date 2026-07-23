@@ -151,6 +151,18 @@ function destroy() {
                                         <Link
                                             :href="
                                                 route(
+                                                    'employees.schedule.edit',
+                                                    employee.id,
+                                                )
+                                            "
+                                            class="rounded-lg border border-border p-2 text-secondary transition-colors hover:bg-surface-muted"
+                                            title="Jornada de trabalho"
+                                        >
+                                            <Icon name="clock" class="size-4" />
+                                        </Link>
+                                        <Link
+                                            :href="
+                                                route(
                                                     'employees.edit',
                                                     employee.id,
                                                 )
