@@ -17,4 +17,9 @@ interface WhatsAppConnector
     public function sendButtons(string $phone, string $message, array $buttons): array|bool;
 
     public function restart(): bool;
+
+    /**
+     * Human-readable reason for the most recent failed send, if any.
+     */
+    public function lastError(): ?string;
 }

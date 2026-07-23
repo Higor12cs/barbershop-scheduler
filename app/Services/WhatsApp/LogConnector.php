@@ -49,6 +49,11 @@ class LogConnector implements WhatsAppConnector
         return true;
     }
 
+    public function lastError(): ?string
+    {
+        return null;
+    }
+
     private function record(string $kind, string $phone, array $payload): array
     {
         Log::info('[WhatsApp][Log] send '.$kind, [

@@ -61,9 +61,11 @@ class WhatsappSettingController extends Controller
             $delivered = false;
         }
 
-        return $delivered
-            ? back()->with('success', 'Mensagem de teste enviada.')
-            : back()->with('error', 'Não foi possível enviar a mensagem de teste.');
+        if ($delivered) {
+            return back()->with('success', 'Mensagem de teste enviada.');
+        }
+
+        return back()->with('error', $connector->lastError() ?? 'Não foi possível enviar a mensagem de teste.');
     }
 
     private function connection(WhatsAppConnector $connector): array

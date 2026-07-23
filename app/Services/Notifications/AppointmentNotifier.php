@@ -42,7 +42,7 @@ class AppointmentNotifier
             $type,
             $delivered ? AppointmentNotification::STATUS_SENT : AppointmentNotification::STATUS_FAILED,
             $payload,
-            $delivered ? null : 'Falha no envio pelo WhatsApp.',
+            $delivered ? null : ($connector->lastError() ?? 'Falha no envio pelo WhatsApp.'),
         );
     }
 
