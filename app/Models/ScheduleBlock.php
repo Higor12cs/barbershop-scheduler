@@ -55,6 +55,6 @@ class ScheduleBlock extends Model
 
     public function label(): string
     {
-        return $this->reason ?: 'Período bloqueado';
+        return $this->reason ?: 'Período Bloqueado';
     }
 }
